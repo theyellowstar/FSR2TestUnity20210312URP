@@ -734,6 +734,7 @@ namespace UnityEngine.Rendering.Universal
             using var profScope = new ProfilingScope(null, Profiling.Pipeline.initializeCameraData);
 
             cameraData = new CameraData();
+			cameraData.jitterMatrix = Matrix4x4.identity;
             InitializeStackedCameraData(camera, additionalCameraData, ref cameraData);
             InitializeAdditionalCameraData(camera, additionalCameraData, resolveFinalTarget, ref cameraData);
 
@@ -841,7 +842,7 @@ namespace UnityEngine.Rendering.Universal
             {
                 cameraData.imageScalingMode = ImageScalingMode.Downscaling;
             }
-            else if ((cameraData.renderScale < 1.0f) || (cameraData.upscalingFilter == ImageUpscalingFilter.FSR))
+            else if ((cameraData.renderScale < 1.0f) || (cameraData.upscalingFilter == ImageUpscalingFilter.FSR) || (cameraData.upscalingFilter == ImageUpscalingFilter.FSR2))
             {
                 // When FSR is enabled, we still consider 100% render scale an upscaling operation.
                 // This allows us to run the FSR shader passes all the time since they improve visual quality even at 100% scale.
@@ -1290,7 +1291,8 @@ namespace UnityEngine.Rendering.Universal
             ImageUpscalingFilter filter = ImageUpscalingFilter.Linear;
 
             // Fall back to the automatic filter if FSR was selected, but isn't supported on the current platform
-            if ((selection == UpscalingFilterSelection.FSR) && !FSRUtils.IsSupported())
+			if (((selection == UpscalingFilterSelection.FSR) && !FSRUtils.IsSupported()) ||
+			    ((selection == UpscalingFilterSelection.FSR2) && SystemInfo.graphicsDeviceType != GraphicsDeviceType.Direct3D11))
             {
                 selection = UpscalingFilterSelection.Auto;
             }
@@ -1340,6 +1342,11 @@ namespace UnityEngine.Rendering.Universal
                 {
                     filter = ImageUpscalingFilter.FSR;
 
+                    break;
+				}
+				case UpscalingFilterSelection.FSR2:
+				{
+                    filter = ImageUpscalingFilter.FSR2;
                     break;
                 }
             }

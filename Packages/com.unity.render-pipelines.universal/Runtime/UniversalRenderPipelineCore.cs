@@ -42,7 +42,9 @@ namespace UnityEngine.Rendering.Universal
         Point,
 
         /// FidelityFX Super Resolution
-        FSR
+        FSR,
+
+        FSR2
     }
 
     public struct RenderingData
@@ -116,7 +118,7 @@ namespace UnityEngine.Rendering.Universal
             if (xr.enabled)
                 return xr.GetProjMatrix(viewIndex);
 #endif
-            return m_ProjectionMatrix;
+            return jitterMatrix * m_ProjectionMatrix;
         }
 
         /// <summary>
@@ -246,6 +248,9 @@ namespace UnityEngine.Rendering.Universal
         /// Camera position in world space.
         /// </summary>
         public Vector3 worldSpaceCameraPos;
+
+        public RenderTexture fsr2Output;
+        public Matrix4x4 jitterMatrix;
     }
 
     public struct ShadowData

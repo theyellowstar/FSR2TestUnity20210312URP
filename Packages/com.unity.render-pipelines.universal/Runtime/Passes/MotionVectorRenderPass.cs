@@ -88,8 +88,11 @@ namespace UnityEngine.Rendering.Universal.Internal
                 camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth;
 
                 // TODO: add option to only draw either one?
+				cameraData.jitterMatrix = Matrix4x4.identity;
+				cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix());
                 DrawCameraMotionVectors(context, cmd, camera);
                 DrawObjectMotionVectors(context, ref renderingData, camera);
+				cmd.SetViewProjectionMatrices(renderingData.cameraData.GetViewMatrix(), renderingData.cameraData.GetProjectionMatrix());
             }
             ExecuteCommand(context, cmd);
             CommandBufferPool.Release(cmd);

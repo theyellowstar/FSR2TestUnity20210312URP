@@ -96,6 +96,7 @@ namespace UnityEngine.Rendering.Universal.Internal
             // (different Z value ranges etc.)
 
             // A camera could be rendered multiple times per frame, only updates the previous view proj & pos if needed
+			cameraData.jitterMatrix = Matrix4x4.identity;
 #if ENABLE_VR && ENABLE_XR_MODULE
             if (cameraData.xr.enabled)
             {
@@ -120,7 +121,7 @@ namespace UnityEngine.Rendering.Universal.Internal
             else
 #endif
             {
-                var gpuProj = GL.GetGPUProjectionMatrix(camera.projectionMatrix, true); // Had to change this from 'false'
+                var gpuProj = GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(), true); // Had to change this from 'false'
                 var gpuView = camera.worldToCameraMatrix;
                 var gpuVP = gpuProj * gpuView;
 
@@ -131,6 +132,11 @@ namespace UnityEngine.Rendering.Universal.Internal
                     motionData.isFirstFrame = false;
                 }
 
+				// FSR2 maintain a history jitter offset internally, if we pass jitter index(frameCount) as last time, the previous jitter offset will be still updated
+                // hence next time when the index is still the same, there will be a zero jitter cancellation, which will make jitter cancellation failed
+                // in order to match with this behaviour in FSR2, move the previous vpMat update outside of if statement
+                motionData.previousViewProjectionMatrix = motionData.isFirstFrame ? gpuVP : motionData.viewProjectionMatrix;
+				
                 // Current frame data
                 motionData.viewProjectionMatrix = gpuVP;
             }

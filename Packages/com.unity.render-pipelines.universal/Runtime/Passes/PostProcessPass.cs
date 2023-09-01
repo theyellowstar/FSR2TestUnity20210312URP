@@ -141,6 +141,11 @@ namespace UnityEngine.Rendering.Universal.Internal
 
         public void Cleanup() => m_Materials.Cleanup();
 
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            ConfigureInput(ScriptableRenderPassInput.Motion | ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth);
+        }
+
         public void Setup(in RenderTextureDescriptor baseDescriptor, in RenderTargetHandle source, bool resolveToScreen, in RenderTargetHandle depth, in RenderTargetHandle internalLut, bool hasFinalPass, bool enableSRGBConversion)
         {
             m_Descriptor = baseDescriptor;
@@ -459,14 +464,16 @@ namespace UnityEngine.Rendering.Universal.Internal
 
             // Panini projection is done as a fullscreen pass after all depth-based effects are done
             // and before bloom kicks in
-            if (usePaniniProjection)
-            {
-                using (new ProfilingScope(cmd, ProfilingSampler.Get(URPProfileId.PaniniProjection)))
+			// the panini projection can not be used with FSR2 in the same camera, try to use multi-cameras and apply this effect in a different camera
+			if (cameraData.upscalingFilter != ImageUpscalingFilter.FSR2)
+				if (usePaniniProjection)
                 {
-                    DoPaniniProjection(cameraData.camera, cmd, GetSource(), GetDestination());
-                    Swap(ref renderer);
+					using (new ProfilingScope(cmd, ProfilingSampler.Get(URPProfileId.PaniniProjection)))
+					{
+						DoPaniniProjection(cameraData.camera, cmd, GetSource(), GetDestination());
+						Swap(ref renderer);
+					}
                 }
-            }
 
             // Lens Flare
             if (useLensFlare)
@@ -1500,6 +1507,13 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                                 break;
                             }
+							
+                            case ImageUpscalingFilter.FSR2:
+							{
+                                if (cameraData.fsr2Output != null)
+                                    cmd.SetGlobalTexture(ShaderPropertyId.sourceTex, cameraData.fsr2Output);
+								break;
+						    }
                         }
 
                         break;

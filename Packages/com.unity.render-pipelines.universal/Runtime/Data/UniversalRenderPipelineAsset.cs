@@ -149,7 +149,9 @@ namespace UnityEngine.Rendering.Universal
         [InspectorName("Nearest-Neighbor")]
         Point,
         [InspectorName("FidelityFX Super Resolution 1.0")]
-        FSR
+        FSR,
+        [InspectorName("FidelityFX Super Resolution 2.0")]
+        FSR2
     }
 
     [ExcludeFromPreset]

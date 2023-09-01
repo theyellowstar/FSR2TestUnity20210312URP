@@ -161,7 +161,7 @@ namespace UnityEngine.Rendering.Universal
             {
                 cmd.SetViewProjectionMatrices(Matrix4x4.identity, Matrix4x4.identity); // Prepare for manual blit
                 cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, m_DBufferClear, 0, 0);
-                cmd.SetViewProjectionMatrices(cameraData.camera.worldToCameraMatrix, cameraData.camera.projectionMatrix);
+                cmd.SetViewProjectionMatrices(cameraData.camera.worldToCameraMatrix, cameraData.GetProjectionMatrix());
             }
 
             cmd.EndSample(clearSampleName);
