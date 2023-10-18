@@ -71,7 +71,15 @@ public class FSR2Pass : ScriptableRenderPass
         public float cameraNear;
         public float cameraFar;
         public float cameraFOV;
-    }
+
+		// EXPERIMENTAL reactive mask generation parameters
+		public bool enableAutoReactive;
+		public IntPtr colorOpaqueOnly;
+		public float autoTcThreshold;
+		public float autoTcScale;
+		public float autoReactiveScale;
+		public float autoReactiveMax;
+	}
 
 #if UNITY_EDITOR
     const String fsr2UnityPluginName = "fsr2-unity-plugind";
@@ -236,17 +244,21 @@ public class FSR2Pass : ScriptableRenderPass
             int renderSizeHeight = (int)(camera.pixelHeight * cameraData.renderScale);
             RenderTexture reactive, transparencyAndComposition;
             var reactiveMaskParam = fsr2PassControl.reactiveMaskParameter;
-            if (reactiveMaskParam.OutputReactiveMask)
+			if (reactiveMaskParam.EnableAutoReactive)
+			{
+				reactive = null;
+				transparencyAndComposition = null;
+			}
+			else if (reactiveMaskParam.OutputReactiveMask)
             {
                 reactive = texReactiveOut;
                 transparencyAndComposition = null;
             }
             else
             {
-
-                reactive = reactiveMaskParam.OptReactiveMaskTex;
-                transparencyAndComposition = reactiveMaskParam.OptTransparencyAndCompositionTex;
-            }
+				reactive = reactiveMaskParam.OptReactiveMaskTex;
+				transparencyAndComposition = reactiveMaskParam.OptTransparencyAndCompositionTex;
+			}
             FSR2Execute(new FSR2ExecuteParam()
             {
                 color = texColor.GetNativeTexturePtr(),
@@ -262,8 +274,15 @@ public class FSR2Pass : ScriptableRenderPass
                 frameTimeDeltaInSec = Time.deltaTime,
                 cameraNear = camera.nearClipPlane,
                 cameraFar = camera.farClipPlane,
-                cameraFOV = camera.fieldOfView * Mathf.Deg2Rad
-            });
+                cameraFOV = camera.fieldOfView * Mathf.Deg2Rad,
+
+				enableAutoReactive = fsr2PassControl.reactiveMaskParameter.EnableAutoReactive,
+				colorOpaqueOnly = texOpaque.GetNativeTexturePtr(),
+				autoTcThreshold = fsr2PassControl.reactiveMaskParameter.AutoTcThreshold,
+                autoTcScale = fsr2PassControl.reactiveMaskParameter.AutoTcScale,
+				autoReactiveScale = fsr2PassControl.reactiveMaskParameter.AutoReactiveScale,
+				autoReactiveMax = fsr2PassControl.reactiveMaskParameter.AutoReactiveMax,
+			});
             renderingData.cameraData.fsr2Output = texFSR2Output;
         }
         else

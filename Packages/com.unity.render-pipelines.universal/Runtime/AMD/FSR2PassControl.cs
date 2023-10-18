@@ -47,7 +47,8 @@ public class FSR2PassControl : MonoBehaviour
     public class ReactiveMaskParameter
     {
         public bool OutputReactiveMask = false;
-        [Range(0.0f, 1.0f)]
+        public bool EnableAutoReactive = true;
+		[Range(0.0f, 1.0f)]
         public float ReactiveMaskScale = .3f;
         [Range(0.0f, 1.0f)]
         public float CutoffThreshold = .3f;
@@ -58,7 +59,16 @@ public class FSR2PassControl : MonoBehaviour
         public RenderTexture OptReactiveMaskTex;
         [HideInInspector]
         public RenderTexture OptTransparencyAndCompositionTex;
-    };
+
+		[Range(0.0f, 1.0f)]
+		public float AutoTcThreshold = 0.05f;
+        [Range(0.0f, 2.0f)]
+        public float AutoTcScale = 1.0f;
+        [Range(0.0f, 20.0f)]
+        public float AutoReactiveScale = 5.0f;
+		[Range(0.0f, 1.0f)]
+		public float AutoReactiveMax = 0.9f;
+	};
     public ReactiveMaskParameter reactiveMaskParameter;
 
     UniversalRenderPipelineAsset urpAsset;
