@@ -146,8 +146,8 @@ public class FSR2Pass : ScriptableRenderPass
             display_size[0] = (UInt32)camera.pixelWidth;
             display_size[1] = (UInt32)camera.pixelHeight;
             initParam.flags = (UInt32)(
-                FSR2InitParam.FlagBits.FFX_FSR2_ENABLE_AUTO_EXPOSURE
-                | FSR2InitParam.FlagBits.FFX_FSR2_ENABLE_DEPTH_INVERTED
+                // FSR2InitParam.FlagBits.FFX_FSR2_ENABLE_AUTO_EXPOSURE
+                FSR2InitParam.FlagBits.FFX_FSR2_ENABLE_DEPTH_INVERTED
                 );
             if (cameraData.isHdrEnabled)
                 initParam.flags |= (UInt32)FSR2InitParam.FlagBits.FFX_FSR2_ENABLE_HIGH_DYNAMIC_RANGE;
